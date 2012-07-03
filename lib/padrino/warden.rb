@@ -37,6 +37,14 @@ module Padrino
         post :login do
           authenticate
           flash[:success] = settings.auth_success_message if flash
+          if params['remember_me'] && settings.auth_allow_remember_me
+            response.set_cookie('token', :value => current_user.generate_token,
+                      :path => '/',
+                      :expires => Time.now + settings.auth_cookie_validity)
+            response.set_cookie('id', :value => current_user.id,
+                      :path => '/',
+                      :expires => Time.now + settings.auth_cookie_validity)
+          end
           redirect settings.auth_use_referrer && session[:return_to] ? session.delete(:return_to) : 
                    settings.auth_success_path
         end
@@ -44,6 +52,12 @@ module Padrino
         get :logout do
           logout
           flash[:success] = settings.deauth_success_message if flash
+          response.set_cookie('token', :value => nil,
+                    :path => '/',
+                    :expires => Time.now - 1) if request.cookies['token']
+          response.set_cookie('id', :value => nil,
+                    :path => '/',
+                    :expires => Time.now - 1) if request.cookies['id']
           redirect settings.auth_success_path
         end
       end

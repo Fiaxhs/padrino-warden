@@ -76,6 +76,9 @@ module Padrino
         app.set :auth_success_message, "You have logged in successfully."
         app.set :deauth_success_message, "You have logged out successfully."
         app.set :auth_login_template, 'sessions/login'
+        # Remember me option
+        app.set :auth_cookie_validity, 365*24*60*60
+        app.set :auth_allow_remember_me, true
         # OAuth Specific Settings
         app.set :auth_use_oauth, false
         
